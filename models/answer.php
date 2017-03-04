@@ -478,6 +478,8 @@ class answer_class extends AWS_MODEL
 	{
 		if (is_array($answer_id))
 		{
+			array_walk_recursive($answer_id, 'intval_string');
+
 			if ($result = $this->query_all("SELECT answer_id, vote_value FROM " . get_table('answer_vote') . " WHERE answer_id IN(" . implode(',', $answer_id) . ") AND vote_uid = " . intval($uid)))
 			{
 				foreach ($result AS $key => $val)
@@ -712,7 +714,7 @@ class answer_class extends AWS_MODEL
 					{
 						$answer_user = $this->model('account')->get_user_info_by_uid($uid);
 
-						$this->model('weixin')->send_text_message($weixin_user['openid'], $answer_user['user_name'] . " 在问题 [" . $question_info['question_content'] . "] 的答案评论中提到了您", $this->model('openid_weixin_weixin')->redirect_url('/m/question/' . $question_info['question_id'] . '?answer_id=' . $answer_info['answer_id'] . '&single=TRUE'));
+						$this->model('weixin')->send_text_message($weixin_user['openid'], "有会员在问题 [" . $question_info['question_content'] . "] 的答案评论中提到了您", $this->model('openid_weixin_weixin')->redirect_url('/m/question/' . $question_info['question_id'] . '?answer_id=' . $answer_info['answer_id'] . '&single=TRUE'));
 					}
 				}
 			}

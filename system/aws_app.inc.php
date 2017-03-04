@@ -227,9 +227,9 @@ class AWS_APP
 	 * @access	public
 	 * @param	object
 	 */
-	public static function exception_handle(Exception $exception)
+	public static function exception_handle($exception)
     {
-		$exception_message = "Application error\n------\nMessage: " . $exception->getMessage() . "\n------\nBuild: " . G_VERSION . " " . G_VERSION_BUILD . "\nPHP Version: " . PHP_VERSION . "\nUser Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\n------\n" . $exception->__toString();
+		$exception_message = "Application error\n------\nMessage: " . $exception->getMessage() . "\nFile: " . $exception->getFile() . "\nLine: " . $exception->getLine() . "\n------\nBuild: " . G_VERSION . " " . G_VERSION_BUILD . "\nPHP Version: " . PHP_VERSION . "\nURI: " . $_SERVER['REQUEST_URI'] . "\nUser Agent: " . $_SERVER['HTTP_USER_AGENT'] . "\nAccept Language: " . $_SERVER['HTTP_ACCEPT_LANGUAGE'] . "\nIP Address: " . fetch_ip() . "\n------\n" . $exception->getTraceAsString();
 
         show_error($exception_message, $exception->getMessage());
     }
@@ -268,7 +268,7 @@ class AWS_APP
 			}
 			else
 			{
-				HTTP::redirect('/account/login/url-' . base64_encode($_SERVER['REQUEST_URI']));
+				HTTP::redirect('/account/login/url-' . base64_current_path());
 			}
 		}
 	}
@@ -283,6 +283,11 @@ class AWS_APP
 	 */
 	public static function config()
 	{
+		if (!self::$config)
+		{
+			self::$config = load_class('core_config');
+		}
+
 		return self::$config;
 	}
 
@@ -492,7 +497,7 @@ class AWS_APP
 	{
 		if (!self::$db)
 		{
-			return false;
+			self::$db = load_class('core_db');
 		}
 
 		return self::$db->setObject($db_object_name);
